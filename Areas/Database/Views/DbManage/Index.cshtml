@@ -1,0 +1,56 @@
+@using Microsoft.EntityFrameworkCore
+@using System.Data
+
+@inject Context dbcontext
+
+@{
+    ViewData["Title"] = "Thông tin Db";
+    var connect = dbcontext.Database.GetDbConnection();
+    var dbname = connect.Database;
+    var can_connect = dbcontext.Database.CanConnect(); // khả năng kết nối đến CSDL
+}
+<partial name="_StatusMessage"/>
+<h1>Thông tin cơ sở dữ liệu</h1>
+
+<h2>Thông tin</h2>
+<p>- DataBase: @dbname</p>
+<p>-Source : @connect.DataSource</p>
+<p>- State : @connect.State</p>
+<hr>
+@if(dbcontext.Database.GetPendingMigrations().Count() >0){
+    foreach (var item in dbcontext.Database.GetPendingMigrations())
+    {
+        <p>@item (Chưa cập nhật lên DataBase)</p>
+    }
+}
+@if(dbcontext.Database.GetAppliedMigrations().Count() > 0){
+    foreach (var item in dbcontext.Database.GetAppliedMigrations())
+    {
+        <p>@item</p>
+        
+    }
+}
+@if(!can_connect){
+    <p class="alert alert-danger">Không có khả năng kết nối DataBase</p>
+
+}
+@if(can_connect){
+    <h2>Các table</h2>
+    await dbcontext.Database.OpenConnectionAsync();
+    DataTable table =await dbcontext.Database.GetDbConnection().GetSchemaAsync("Tables");
+    <ul>
+        @foreach (System.Data.DataRow row in table.Rows)
+        {
+            <li>@row["TABLE_NAME"]</li>
+            
+        }
+    </ul>
+    <a asp-controller ="DbManage" asp-action = "DeleteDb" class="btn btn-danger"> Xóa DataBase : @dbname</a>
+}
+@if(dbcontext.Database.GetPendingMigrations().Count() > 0){
+    <form method="post">
+        <button class="btn btn-success" asp-action = "Migrate">Cập nhật DataBase</button>
+    </form>
+}
+
+

@@ -66,12 +66,12 @@ namespace ASP_NET_MVC.Controllers
             }
             ProductService productService = new ProductService();
 
-            List<Models.Product> products = productService.products;
+            List<Models.ProductModel> products = productService.products;
             if(products.Count() == 0){
                 return NotFound("Không có sản phẩm nào");                
             }
             // Không thể Null được -,-
-            Models.Product? product = products.Where(p => p.ID == id).FirstOrDefault();
+            Models.ProductModel? product = products.Where(p => p.ID == id).FirstOrDefault();
             if(product == null){
                 return NotFound("Không tìm thấy sản phẩm có ID = ID");
             }

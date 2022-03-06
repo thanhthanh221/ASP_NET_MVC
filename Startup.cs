@@ -11,6 +11,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Routing.Constraints; // khống thể Route theo yêu cầu
 using ASP_NET_MVC.Service;
+using ASP_NET_MVC.Models;
+using Microsoft.EntityFrameworkCore;
+using ASP_NET_MVC.Data;
+
 
 namespace ASP_NET_MVC
 {
@@ -29,6 +33,10 @@ namespace ASP_NET_MVC
         // This method gets called by the runtime. Use this method to add services to the container.(Thêm dịch vụ vào vùng chứa)
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDbContext<Context>(optionsAction =>{
+               string value = Configuration.GetConnectionString("Context");
+               optionsAction.UseSqlServer(value);
+            });
             services.AddControllersWithViews();
             services.AddRazorPages();
 
@@ -50,10 +58,7 @@ namespace ASP_NET_MVC
                 app.UseHsts();
             }
             app.UseHttpsRedirection();
-            app.UseStaticFiles();
-
-            // Lỗi(400->) sẽ chuyển về URL "Home/Index"
-            app.UseStatusCodePagesWithRedirects("/Home/Index");            
+            app.UseStaticFiles();            
 
             app.UseRouting();
 
@@ -90,6 +95,11 @@ namespace ASP_NET_MVC
                     name: "Product",
                     pattern: "{controller}/{action=Index}/{id?}",
                     areaName: "ProductManage"
+                );
+                endpoints.MapAreaControllerRoute(
+                    name: "Database",
+                    pattern: "{controller}/{action=Index}/{id?}",
+                    areaName: "Database"
                 );
                 endpoints.MapControllerRoute(
                     name: "Test1",     // Tên
